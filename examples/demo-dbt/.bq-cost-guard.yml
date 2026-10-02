@@ -5,8 +5,8 @@ dbt:
   profiles_dir: "."
 
 bigquery:
-  # Replace with your GCP project id (the one the WIF service account can use).
-  project_id: "your-gcp-project"
+  # Personal (non-work) GCP project that runs the dry-run jobs.
+  project_id: "bq-cost-guard-dev"
   location: US
 
 # Low thresholds so the demo clearly trips a warning. The Before/After % increase

@@ -12,7 +12,7 @@ bq_cost_guard_demo:
     ci:
       type: bigquery
       method: oauth
-      project: "{{ env_var('BIGQUERY_PROJECT_ID', 'your-gcp-project') }}"
+      project: "{{ env_var('BIGQUERY_PROJECT_ID', 'bq-cost-guard-dev') }}"
       dataset: bq_cost_guard_demo
       location: US          # bigquery-public-data lives in the US multi-region
       threads: 1
