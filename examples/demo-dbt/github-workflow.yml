@@ -1,0 +1,37 @@
+# Demo workflow — copy to .github/workflows/bq-cost-guard.yml in your demo repo.
+name: BigQuery Cost Guard (demo)
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  cost-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # needed for Before/After (base commit must be present)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # dbt is required to compile this dbt project (and the base revision for
+      # Before/After). The Action reuses this same Python 3.12 environment.
+      - name: Install dbt-bigquery
+        run: pip install dbt-bigquery
+
+      # Before publishing to the Marketplace you can reference the Action by repo:
+      #   uses: <your-org>/bigquery-cost-guard@main
+      # After publishing, pin to a tag:
+      #   uses: <your-org>/bigquery-cost-guard@v1
+      - uses: <your-org>/bigquery-cost-guard@v1
+        with:
+          config: .bq-cost-guard.yml
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}

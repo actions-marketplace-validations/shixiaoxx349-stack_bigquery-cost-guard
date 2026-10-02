@@ -1,0 +1,14 @@
+name: 'bq_cost_guard_demo'
+version: '1.0.0'
+config-version: 2
+
+profile: 'bq_cost_guard_demo'
+
+model-paths: ["models"]
+clean-targets: ["target", "dbt_packages"]
+
+# Views only — nothing is materialized as a table. Cost Guard dry-runs the
+# compiled SELECT; no data is written by this demo.
+models:
+  bq_cost_guard_demo:
+    +materialized: view

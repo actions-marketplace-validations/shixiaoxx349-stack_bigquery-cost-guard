@@ -1,0 +1,25 @@
+version: 1
+
+dbt:
+  project_dir: "."
+  profiles_dir: "."
+
+bigquery:
+  # Replace with your GCP project id (the one the WIF service account can use).
+  project_id: "your-gcp-project"
+  location: US
+
+# Low thresholds so the demo clearly trips a warning. The Before/After % increase
+# (one day -> whole year) trips the increase thresholds regardless of absolute size.
+thresholds:
+  warn_bytes: 1073741824        # 1 GiB
+  fail_bytes: 107374182400      # 100 GiB
+  warn_increase_percent: 50
+  fail_increase_percent: 200
+
+analysis:
+  detect_select_star: true
+  detect_missing_partition_filter: true
+
+pricing:
+  price_per_tib_usd: 6.25       # shows the estimated $ line in the comment

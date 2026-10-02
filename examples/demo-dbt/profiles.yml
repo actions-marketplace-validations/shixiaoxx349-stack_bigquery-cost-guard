@@ -1,0 +1,19 @@
+# dbt profile for the demo.
+#
+# Uses Application Default Credentials (method: oauth). In GitHub Actions these
+# are provided by Workload Identity Federation via google-github-actions/auth —
+# no Service Account JSON key is referenced or stored.
+#
+# `dbt compile` only needs the connection to resolve relations; it does NOT write
+# any data. `dataset` is only used to construct names.
+bq_cost_guard_demo:
+  target: ci
+  outputs:
+    ci:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('BIGQUERY_PROJECT_ID', 'your-gcp-project') }}"
+      dataset: bq_cost_guard_demo
+      location: US          # bigquery-public-data lives in the US multi-region
+      threads: 1
+      priority: interactive
