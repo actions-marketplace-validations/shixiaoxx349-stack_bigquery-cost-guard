@@ -1,0 +1,33 @@
+# Copy this file to .github/workflows/bq-cost-guard.yml in your repository.
+name: BigQuery Cost Guard
+
+on:
+  pull_request:
+
+# Minimum permissions required:
+#   contents: read        -> checkout + diff
+#   pull-requests: write  -> post/update the cost comment
+#   id-token: write       -> GitHub OIDC token for Workload Identity Federation
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  cost-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 is required: changed-file detection AND the Phase 1B
+          # Before/After comparison need the PR base commit present locally
+          # (the base is compiled in a throwaway git worktree).
+          fetch-depth: 0
+
+      - uses: your-org/bigquery-cost-guard@v1
+        with:
+          config: .bq-cost-guard.yml
+          # Omit the two inputs below for fork PRs — BigQuery dry run is
+          # skipped automatically for forks and only static analysis runs.
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}

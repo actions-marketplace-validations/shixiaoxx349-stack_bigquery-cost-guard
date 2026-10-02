@@ -1,0 +1,31 @@
+# BigQuery PR Cost Guard configuration.
+# Place this file at the root of your repository as `.bq-cost-guard.yml`.
+# Every field is optional; sensible defaults apply when the file or a field is missing.
+version: 1
+
+# Fail the GitHub Actions job when a model exceeds a fail threshold.
+# Default is false (warning-only) to keep the barrier to adoption low.
+fail_on_threshold: false
+
+dbt:
+  project_dir: "."
+  profiles_dir: "."
+
+bigquery:
+  project_id: "my-project"
+  location: "US"
+
+thresholds:
+  warn_bytes: 53687091200        # 50 GiB  — flag a single query scanning this much
+  fail_bytes: 536870912000       # 500 GiB — mark as failing (only fails job if fail_on_threshold)
+  warn_increase_percent: 50      # used in Phase 1B Before/After comparison
+  fail_increase_percent: 200
+
+analysis:
+  detect_select_star: true
+  detect_missing_partition_filter: true
+
+pricing:
+  # Leave null to report bytes only. Set your effective on-demand rate to also
+  # surface an estimated cost. No price is hard-coded in the tool.
+  price_per_tib_usd: null

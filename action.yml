@@ -1,0 +1,65 @@
+name: 'BigQuery Cost Guard'
+description: 'Estimate BigQuery cost impact of SQL changes in pull requests'
+
+inputs:
+  config:
+    description: 'Path to .bq-cost-guard.yml'
+    default: '.bq-cost-guard.yml'
+  workload_identity_provider:
+    description: 'GCP Workload Identity Provider resource name (projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER)'
+    required: false
+    default: ''
+  service_account:
+    description: 'GCP Service Account email to impersonate'
+    required: false
+    default: ''
+
+outputs:
+  has_findings:
+    description: 'true if any cost or quality findings were detected'
+    value: ${{ steps.run.outputs.has_findings }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Authenticate to Google Cloud
+      if: inputs.workload_identity_provider != '' && inputs.service_account != ''
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+
+    - name: Install BigQuery Cost Guard dependencies
+      shell: bash
+      run: |
+        pip install --quiet \
+          google-cloud-bigquery \
+          google-auth \
+          PyYAML \
+          sqlglot
+
+    - name: Install BigQuery Cost Guard
+      shell: bash
+      run: |
+        pip install --quiet "${{ github.action_path }}"
+
+    - name: Run Cost Guard
+      id: run
+      shell: bash
+      env:
+        BQ_COST_GUARD_CONFIG: ${{ inputs.config }}
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        GITHUB_BASE_REF_SHA: ${{ github.event.pull_request.base.sha }}
+        GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
+        GITHUB_API_URL: ${{ github.api_url }}
+      run: |
+        cd "${{ github.workspace }}"
+        python -m bq_cost_guard.cli run --config "${{ inputs.config }}"

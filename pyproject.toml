@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bq-cost-guard"
+version = "0.1.0"
+description = "Estimate BigQuery cost impact of SQL changes in pull requests"
+requires-python = ">=3.12"
+dependencies = [
+    "google-cloud-bigquery>=3.0",
+    "google-auth>=2.0",
+    "PyYAML>=6.0",
+    "sqlglot>=20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+bq-cost-guard = "bq_cost_guard.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bq_cost_guard"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
