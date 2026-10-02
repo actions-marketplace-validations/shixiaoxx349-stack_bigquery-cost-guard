@@ -7,14 +7,7 @@ A partition filter disappears in a PR, and a query that scanned 4.2 GiB now scan
 SQL on each Pull Request and comments the cost impact — so the regression is caught
 at review time instead of on the invoice.
 
-<!-- TODO before launch: add a real screenshot of the PR comment at docs/images/pr-comment.png and embed it here -->
-
-```text
-🛡 BigQuery Cost Guard
-models/orders_daily.sql
-Before: 4.2 GiB  →  After: 94.7 GiB   (+2,155%)   ⚠️ Cost regression
-Possible reason: partition filter removed / SELECT * detected
-```
+![BigQuery PR Cost Guard comment on a pull request](docs/images/pr-comment.png)
 
 - **Shift-left** — runs in CI on every PR, not a dashboard you must remember to open.
 - **Dry run only** — Cost Guard never executes the analyzed SQL ([details](#7-security-model)).
