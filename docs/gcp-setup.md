@@ -56,20 +56,25 @@ gcloud iam service-accounts create bq-cost-guard \
 
 ### 4. Grant MINIMUM IAM
 
-Dry run needs to (a) submit a job and (b) read table metadata for the estimate:
+Dry run needs to (a) submit a job and (b) resolve the tables the query reads.
+Grant `jobUser` at the project level:
 
 ```bash
 gcloud projects add-iam-policy-binding PROJECT_ID \
   --member="serviceAccount:bq-cost-guard@PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/bigquery.jobUser"          # bundles bigquery.jobs.create
-
-gcloud projects add-iam-policy-binding PROJECT_ID \
-  --member="serviceAccount:bq-cost-guard@PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/bigquery.dataViewer"       # read schema/partition metadata
 ```
 
-For tighter scoping, grant `bigquery.dataViewer` on only the specific datasets
-the models read, instead of at project level.
+Then grant read access **only where needed** (least privilege):
+
+- Public datasets (e.g. `bigquery-public-data`) need **no** grant.
+- For your own datasets, grant `READER` on each dataset rather than project-wide.
+  The setup script does this for you via `--dataset NAME`. Manually, add an access
+  entry to the dataset (Console → dataset → Sharing → Permissions, add the service
+  account as *BigQuery Data Viewer*).
+- `roles/bigquery.dataViewer` at the **project** level is broad — it allows the SA
+  to **query and export table data across the whole project**. Only grant it
+  (`--all-datasets`) if you accept that scope.
 
 > Dry run does **not** read row data and does **not** require
 > `roles/bigquery.dataEditor` or any write role. Do not grant more than the above.

@@ -129,10 +129,11 @@ Only after real interest, place an **Early Access $10/mo** Checkout to test true
 ### Show HN
 > **Show HN: BigQuery PR Cost Guard – dry-run your dbt SQL's cost on every PR**
 >
-> A partition filter disappeared in one of our PRs and a query went from scanning
-> 4.2 GiB to 94.7 GiB *per run* — we only noticed on the bill. So I built a GitHub
-> Action that dry-runs the changed dbt/BigQuery SQL on each PR and comments the
-> Before/After bytes, before merge.
+> In a demo PR against BigQuery public data, one small SQL change (a widened date
+> range + SELECT *) took a query's scan from 6.1 GiB to 2.1 TiB. That's the class of
+> regression you normally only catch on the bill, so I built a GitHub Action that
+> dry-runs the changed dbt/BigQuery SQL on each PR and comments the Before/After
+> bytes before merge.
 >
 > It's dry-run only (it never executes your SQL), auth is GitHub OIDC → Google
 > Workload Identity Federation so there are no Service Account keys to store, and
@@ -145,9 +146,10 @@ Only after real interest, place an **Early Access $10/mo** Checkout to test true
 ### Reddit (r/dataengineering)
 > **I built a GitHub Action that catches BigQuery cost regressions at PR time**
 >
-> We had a PR silently 20x a query's scan size (dropped partition filter). The bill
-> told us, two weeks later. This Action dry-runs the changed dbt/BigQuery SQL on
-> each PR and posts Before/After bytes + % change as a comment.
+> In a demo PR, a one-line change (widened date range + SELECT *) took a query from
+> 6.1 GiB to 2.1 TiB scanned — the kind of thing the invoice usually tells you about
+> two weeks later. This Action dry-runs the changed dbt/BigQuery SQL on each PR and
+> posts Before/After bytes + % change as a comment.
 >
 > - Dry run only — never executes your SQL
 > - WIF auth, no stored keys; fork PRs get static analysis only
@@ -163,7 +165,8 @@ Only after real interest, place an **Early Access $10/mo** Checkout to test true
 > feedback on usefulness + onboarding very welcome: <link>
 
 ### X / Twitter
-> Caught a PR that would've 20x'd a BigQuery query's scan size — *after* it merged.
+> A one-line SQL change took a query from 6.1 GiB → 2.1 TiB scanned (demo, BigQuery
+> public data). You usually catch that on the bill.
 >
 > So: a GitHub Action that dry-runs your changed dbt/BigQuery SQL on every PR and
 > comments the Before→After cost. Dry-run only, no stored keys (WIF), ~$0.
@@ -173,9 +176,10 @@ Only after real interest, place an **Early Access $10/mo** Checkout to test true
 ### Qiita / Zenn (JP)
 > **タイトル:** PRで BigQuery のスキャン量増加を検知する GitHub Action を作った
 >
-> パーティションフィルタが外れて、あるクエリの走査量が 4.2 GiB → 94.7 GiB に。
-> 気づいたのは請求書でした。これを防ぐため、PR で変更された dbt/BigQuery SQL を
-> dry run して Before/After のスキャン量をコメントする GitHub Action を作りました。
+> デモPR（BigQuery 公開データ）で、1か所の SQL 変更（期間拡大＋SELECT *）だけで
+> 走査量が 6.1 GiB → 2.1 TiB に。普通は請求書で気づく類のやつです。これを防ぐため、
+> PR で変更された dbt/BigQuery SQL を dry run して Before/After のスキャン量を
+> コメントする GitHub Action を作りました。
 > dry run のみ（SQL は実行しない）、認証は WIF（鍵を保存しない）、fork PR は静的
 > 解析のみ。自分の GitHub Actions 内で完結し、サーバー費はほぼ 0 円です。
 > ベータ無料。導入の手間と警告の有用性についてフィードバックください: <link>

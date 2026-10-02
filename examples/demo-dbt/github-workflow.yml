@@ -26,11 +26,9 @@ jobs:
       - name: Install dbt-bigquery
         run: pip install dbt-bigquery
 
-      # Before publishing to the Marketplace you can reference the Action by repo:
-      #   uses: <your-org>/bigquery-cost-guard@main
-      # After publishing, pin to a tag:
-      #   uses: <your-org>/bigquery-cost-guard@v1
-      - uses: <your-org>/bigquery-cost-guard@v1
+      # Before publishing a tag you can reference the Action by branch:
+      #   uses: shixiaoxx349-stack/bigquery-cost-guard@main
+      - uses: shixiaoxx349-stack/bigquery-cost-guard@v1
         with:
           config: .bq-cost-guard.yml
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}

@@ -24,7 +24,7 @@ jobs:
           # (the base is compiled in a throwaway git worktree).
           fetch-depth: 0
 
-      - uses: your-org/bigquery-cost-guard@v1
+      - uses: shixiaoxx349-stack/bigquery-cost-guard@v1
         with:
           config: .bq-cost-guard.yml
           # Omit the two inputs below for fork PRs — BigQuery dry run is

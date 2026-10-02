@@ -1,8 +1,10 @@
 # Security Model
 
-BigQuery PR Cost Guard is designed so that **no customer cloud credential ever
-leaves the customer's own GitHub organization**, and so that **untrusted PR code
-can never reach your BigQuery project**.
+BigQuery PR Cost Guard is designed so that **it has no backend and stores no
+long-lived customer credentials**, and so that **untrusted _fork_ PR code does not
+receive GCP credentials**. (Code in a _same-repo_ branch PR is trusted by GitHub's
+model and can run under your credentials during `dbt compile` — see the same-repo
+risk below.)
 
 ## 1. No long-lived GCP keys
 

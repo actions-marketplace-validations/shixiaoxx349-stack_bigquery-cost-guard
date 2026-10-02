@@ -2,12 +2,15 @@
 
 **Catch BigQuery cost regressions in the pull request — before they hit your bill.**
 
-A partition filter disappears in a PR, and a query that scanned 4.2 GiB now scans
-94.7 GiB *on every run*. BigQuery PR Cost Guard dry-runs your changed dbt / BigQuery
-SQL on each Pull Request and comments the cost impact — so the regression is caught
-at review time instead of on the invoice.
+In a demo PR against BigQuery public data, one small SQL change took a query's scan
+from **6.1 GiB to 2.1 TiB** — the kind of regression (a widened date range, a
+`SELECT *`, a dropped partition filter) you usually only notice on the invoice.
+BigQuery PR Cost Guard dry-runs your changed dbt / BigQuery SQL on each Pull Request
+and comments the cost impact — so it's caught at review time instead.
 
 ![BigQuery PR Cost Guard comment on a pull request](docs/images/pr-comment.png)
+
+*Real demo PR using BigQuery public data — see the [live PR](https://github.com/shixiaoxx349-stack/cost-guard-demo/pull/1).*
 
 - **Shift-left** — runs in CI on every PR, not a dashboard you must remember to open.
 - **Dry run only** — Cost Guard never executes the analyzed SQL ([details](#7-security-model)).
@@ -54,14 +57,14 @@ BigQuery project. There is no SaaS backend in the box.
 
 | Model | Before | After | Change | Status |
 |---|---:|---:|---:|---|
-| `orders_daily` | 4.2 GiB | 94.7 GiB | +2155% | ⚠️ |
-| `customers`    | 1.8 GiB | 1.9 GiB  | +5%    | ✅ |
+| `daily_pageviews` | 6.1 GiB | 2.1 TiB | +35782% | ❌ |
+| `enwiki_hourly`   | 2.2 GiB | 2.2 GiB | +0%     | ✅ |
 
-**Estimated on-demand cost (per run):** $0.04 → $0.57 (+$0.53) at $6.25/TiB
+**Estimated on-demand cost (per run):** $0.05 → $13.44 (+$13.39) at $6.25/TiB
 
 ### Findings
 
-- ⚠️ **models/orders_daily.sql**: SELECT * detected — consider selecting only needed columns to reduce bytes scanned.
+- ⚠️ **models/daily_pageviews.sql**: SELECT * detected — consider selecting only needed columns to reduce bytes scanned.
 
 ---
 > Cost estimated via BigQuery dry run. Cost Guard does not execute the analyzed SQL.
@@ -77,7 +80,8 @@ BigQuery project. There is no SaaS backend in the box.
 
 ```bash
 # 1. One-time GCP setup (creates WIF pool, provider, SA, minimum IAM)
-./scripts/setup-gcp.sh my-gcp-project my-org/my-repo
+./scripts/setup-gcp.sh --project my-gcp-project --repo my-org/my-repo
+#   add --dataset NAME (repeatable) to grant read on your own datasets
 # -> prints GCP_WIF_PROVIDER and GCP_SERVICE_ACCOUNT
 
 # 2. Add those two as GitHub repo Variables, then add the workflow:
@@ -105,7 +109,7 @@ Grant nothing beyond these.
 No Service Account JSON key is used. Authentication is GitHub OIDC → Google
 Workload Identity Federation → short-lived Service Account impersonation.
 
-Run `./scripts/setup-gcp.sh <PROJECT_ID> <ORG/REPO>` or follow the manual steps
+Run `./scripts/setup-gcp.sh --project <PROJECT_ID> --repo <ORG/REPO>` or follow the manual steps
 in [docs/gcp-setup.md](docs/gcp-setup.md). Then set the workflow inputs:
 
 ```yaml
@@ -118,14 +122,21 @@ with:
 
 Dry run needs only to submit a job and read table metadata:
 
-| Role | Why |
-|---|---|
-| `roles/bigquery.jobUser` | bundles `bigquery.jobs.create` — submit the dry-run job |
-| `roles/bigquery.dataViewer` | read table schema / partitioning for the estimate |
+| Role | Scope | Why |
+|---|---|---|
+| `roles/bigquery.jobUser` | project | submit the dry-run job (bundles `bigquery.jobs.create`) |
+| `roles/bigquery.dataViewer` | **per dataset** | resolve the tables your models read |
 
-It does **not** need any write/edit role, and dry run reads **no row data**. For
-tighter scope, grant `dataViewer` on only the datasets your models read. Details
-in [docs/gcp-setup.md](docs/gcp-setup.md).
+The setup script grants `jobUser` at the project level and, by default, **no**
+`dataViewer` (least privilege). Add read access only where you need it:
+
+- Public datasets (e.g. `bigquery-public-data`) need **no** grant.
+- Your own datasets: `--dataset NAME` (repeatable) grants `dataViewer` on that
+  dataset only.
+- `--all-datasets` grants project-wide `dataViewer` — note this role can **query
+  and export table data** across the whole project, so prefer `--dataset`.
+
+It never needs any write/edit role. Details in [docs/gcp-setup.md](docs/gcp-setup.md).
 
 ## 7. Security Model
 
