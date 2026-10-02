@@ -70,7 +70,7 @@ cost-guard-demo → Settings → Secrets and variables → Actions → **Variabl
 cd ~/cost-guard-demo
 git checkout -b cost-regression
 cp regression_example.sql models/daily_pageviews.sql
-git commit -am "demo: remove partition filter + SELECT *"
+git commit -am "demo: widen date range + SELECT *"
 git push -u origin cost-regression
 # open the PR on github.com; wait for the Action; screenshot the Cost Guard comment
 ```

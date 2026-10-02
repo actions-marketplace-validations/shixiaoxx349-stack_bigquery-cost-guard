@@ -13,9 +13,10 @@ Reading time: ~5–10 minutes.
   (partition-filtered → small scan). This is the **Before**.
 - `models/enwiki_hourly.sql` — a second small model, so the comment table shows a
   healthy ✅ row too.
-- `regression_example.sql` — the **After**: partition filter removed + `SELECT *`.
-  Paste it into `daily_pageviews.sql` in a PR to trigger a big Before/After jump
-  and a `SELECT *` finding.
+- `regression_example.sql` — the **After**: datehour range widened from one day to
+  the whole year + `SELECT *` (this table requires a partition filter, so the range
+  is widened, not removed). Paste it into `daily_pageviews.sql` in a PR to trigger a
+  big Before/After jump (~6 GiB → ~2 TiB) and a `SELECT *` finding.
 
 ## 0. Verify the public dataset first (do this before anything else)
 
@@ -78,7 +79,7 @@ Variables).
 ```bash
 git checkout -b cost-regression
 cp regression_example.sql models/daily_pageviews.sql
-git commit -am "demo: remove partition filter + SELECT *"
+git commit -am "demo: widen date range + SELECT *"
 git push -u origin cost-regression
 # open the PR on GitHub
 ```

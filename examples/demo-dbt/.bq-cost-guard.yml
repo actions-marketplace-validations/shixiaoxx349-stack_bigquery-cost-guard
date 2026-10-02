@@ -9,10 +9,10 @@ bigquery:
   project_id: "bq-cost-guard-dev"
   location: US
 
-# Low thresholds so the demo clearly trips a warning. The Before/After % increase
-# (one day -> whole year) trips the increase thresholds regardless of absolute size.
+# Tuned so the healthy model (~a few GiB/day) stays ✅ while the regression
+# (full year + SELECT *, ~2 TiB) is ❌ on both absolute size and % increase.
 thresholds:
-  warn_bytes: 1073741824        # 1 GiB
+  warn_bytes: 53687091200       # 50 GiB
   fail_bytes: 107374182400      # 100 GiB
   warn_increase_percent: 50
   fail_increase_percent: 200
