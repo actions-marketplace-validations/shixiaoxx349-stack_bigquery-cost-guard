@@ -1,5 +1,9 @@
 # BigQuery PR Cost Guard
 
+[![CI](https://github.com/shixiaoxx349-stack/bigquery-cost-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/shixiaoxx349-stack/bigquery-cost-guard/actions/workflows/ci.yml)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-BigQuery%20Cost%20Guard-2ea44f?logo=github)](https://github.com/marketplace/actions/bigquery-cost-guard)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **Catch BigQuery cost regressions in the pull request — before they hit your bill.**
 
 In a demo PR against BigQuery public data, one small SQL change took a query's scan
